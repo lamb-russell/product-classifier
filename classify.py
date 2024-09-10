@@ -5,7 +5,6 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
 import logging
 
-
 # Set up logging configuration
 logging.basicConfig(
     level=logging.INFO,  # Set the logging level to INFO (can change to DEBUG for more details)
@@ -15,9 +14,23 @@ logging.basicConfig(
 # Create a logger object
 logger = logging.getLogger(__name__)
 
+
 def classify_product(description: str, categories: List[str], model_name: str = "llama3.1") -> str:
-    # Create the Ollama LLM instance
+    """
+    Classifies a product description into one of the provided categories using an LLM.
+
+    Args:
+        description (str): A detailed product description to classify.
+        categories (List[str]): A list of category labels to classify the product into.
+        model_name (str): The name of the LLM model to use for classification. Default is "llama3.1".
+
+    Returns:
+        str: The predicted category for the product description.
+    """
+    # Create an instance of OllamaLLM with the specified model name
     llm = OllamaLLM(model=model_name)
+
+    # Define the prompt template to instruct the LLM how to classify the product
     prompt_template = """
     You are an expert product classifier. Given the following product description and list of categories, choose the most appropriate category for the product.
     Since this output will be used by other automated processing, only respond with the category name that matches the product description.  
@@ -29,55 +42,73 @@ def classify_product(description: str, categories: List[str], model_name: str = 
     The best category for the product is:
     """
 
-    # Prepare the prompt template
+    # Prepare the prompt template with placeholders for product description and categories
     prompt = ChatPromptTemplate.from_template(prompt_template)
 
-    # Create the chain
+    # Create the LLM chain that will run the prompt
     chain = LLMChain(llm=llm, prompt=prompt)
 
-    # Format the categories into a comma-separated string
+    # Format the categories list into a comma-separated string
     categories_str = ", ".join(categories)
 
-    # Run the chain to get the category
+    # Run the chain with the formatted input and capture the response from the model
     response = chain.run({
         "description": description,
         "categories": categories_str
     })
-    logger.info(description)
-    logger.info(categories_str)
-    logger.info(response)
+
+    # Log the input description, categories, and the output response for tracking purposes
+    logger.info(f"Product Description: {description}")
+    logger.info(f"Categories: {categories_str}")
+    logger.info(f"Model Response: {response}")
+
+    # Return the classified category, stripping any extra whitespace
     return response.strip()
 
 
 def classify_products(descriptions: List[str], categories: List[str]) -> List[str]:
-    results = []
+    """
+    Classifies multiple product descriptions into one of the provided categories.
 
+    Args:
+        descriptions (List[str]): A list of product descriptions to classify.
+        categories (List[str]): A list of category labels to classify the products into.
+
+    Returns:
+        List[str]: A list of predicted categories for each product description.
+    """
+    results = []  # List to store the classification results
+
+    # Loop through each product description and classify it
     for description in descriptions:
-        result = classify_product(description, categories)
-        results.append(result)
+        result = classify_product(description, categories)  # Classify each product
+        results.append(result)  # Store the result
+
+        # Print the description and its classified category for easy tracking
         print(f"Description: {description} \n -> Classified as: {result}\n")
 
+    # Return the list of classification results
     return results
 
 
 if __name__ == "__main__":
+    """
+    Example execution of the classify_products function with predefined inputs.
+    """
 
-
-
-
-    # Example list of product descriptions
+    # Example list of product descriptions to classify
     product_descriptions = [
-        "A smartphone with 128GB storage and 6GB RAM.",
-        "A comfortable cotton t-shirt, available in various colors.",
-        "A blender with 3-speed settings and a glass jar.",
+        "A smartphone with 128GB storage and 6GB RAM.",  # Electronic product example
+        "A comfortable cotton t-shirt, available in various colors.",  # Clothing product example
+        "A blender with 3-speed settings and a glass jar.",  # Home appliance product example
     ]
 
-    # Example categories
+    # Example categories that the products can be classified into
     categories = ["Electronics", "Clothing", "Home Appliances", "Sports Equipment", "Toys"]
 
-    # Classify each product
+    # Call the classify_products function and get the classification results
     classified_results = classify_products(product_descriptions, categories)
 
-    # Output the results
+    # Output the results in a readable format
     for i, category in enumerate(classified_results):
         print(f"Product {i + 1}: {category}")
