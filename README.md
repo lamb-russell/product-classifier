@@ -1,6 +1,6 @@
-# Product Categorizer Project
+# Product Classifier Project
 
-This project implements a product classification tool using the `OllamaLLM` model from `LangChain`. The tool classifies product descriptions into a set of predefined categories based on natural language processing.
+This project provides a tool for classifying product descriptions into predefined categories using the `OllamaLLM` model from `LangChain`. It supports both individual and batch classification, with logging enabled for tracking model responses and outputs. Additionally, the project includes unit tests for validating the classification functionality.
 
 ## Table of Contents
 
@@ -9,6 +9,7 @@ This project implements a product classification tool using the `OllamaLLM` mode
 3. [Usage](#usage)
    - [Classify a Single Product](#classify-a-single-product)
    - [Classify Multiple Products](#classify-multiple-products)
+   - [Process Product CSV File](#process-product-csv-file)
 4. [Testing](#testing)
 5. [Logging](#logging)
 
@@ -16,18 +17,16 @@ This project implements a product classification tool using the `OllamaLLM` mode
 
 ## Project Structure
 
-The project is structured as follows:
+The project files are organized as follows:
 
 ```
-product_categorizer/
+product_classifier/
 │
-├── classify.py         # Main script containing the classification logic
+├── classify.py         # Main script for classifying product descriptions
+├── main.py             # Script to process products from a CSV file and save results
 ├── test.py             # Unit tests for the classification functions
-├── code.txt            # (Reserved for future use or custom scripts)
-├── .venv/              # Virtual environment setup
-│   ├── pyvenv.cfg      # Configuration file for the virtual environment
-│   ├── .gitignore      # Ignoring virtual environment files
-└── README.md           # This readme file
+├── README.md           # Project documentation (this file)
+├── .gitignore          # Ignore common unwanted files and directories in git
 ```
 
 ---
@@ -36,8 +35,8 @@ product_categorizer/
 
 ### Prerequisites
 
-1. **Python 3.10+**: Ensure Python 3.10 or higher is installed on your machine.
-2. **Virtual Environment**: The project uses a virtual environment to manage dependencies. The virtual environment is created using `virtualenv`.
+- **Python 3.10+**: Ensure you have Python 3.10 or a later version installed.
+- **Virtual Environment**: It's recommended to use a virtual environment for managing dependencies.
 
 ### Steps to Set Up the Environment
 
@@ -45,12 +44,12 @@ product_categorizer/
 
    ```bash
    git clone <repository_url>
-   cd product_categorizer
+   cd product_classifier
    ```
 
-2. **Set Up Virtual Environment**:
+2. **Set Up a Virtual Environment**:
 
-   If a virtual environment does not exist, create one:
+   If a virtual environment is not set up, create one:
 
    ```bash
    python3 -m venv .venv
@@ -70,25 +69,21 @@ product_categorizer/
      .venv\Scripts\activate
      ```
 
-4. **Install Required Dependencies**:
+4. **Install the Required Dependencies**:
 
-   After activating the environment, install the required libraries:
+   Install the required libraries, including `langchain` and `OllamaLLM`:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-   Ensure you have installed the necessary `langchain` libraries and `OllamaLLM` support for the model.
-
 ---
 
 ## Usage
 
-The `classify.py` script provides functions to classify a product description into predefined categories.
-
 ### Classify a Single Product
 
-To classify a single product, use the `classify_product` function. Here’s an example:
+To classify a single product into predefined categories, use the `classify_product` function from `classify.py`:
 
 ```python
 from classify import classify_product
@@ -102,7 +97,7 @@ print(f"Classified Category: {result}")
 
 ### Classify Multiple Products
 
-To classify multiple products in one go, use the `classify_products` function:
+To classify a list of products, use the `classify_products` function:
 
 ```python
 from classify import classify_products
@@ -119,51 +114,26 @@ for i, result in enumerate(results):
     print(f"Product {i + 1}: {result}")
 ```
 
+### Process Product CSV File
+
+The `main.py` script allows you to classify product descriptions from a CSV file and save the results to a new CSV file. The input CSV should contain a `description` column, and the category CSV should list the available categories in a `category` column.
+
+Example usage:
+
+```bash
+python main.py product_file.csv category_file.csv output_file.csv
+```
+
+This will classify all products in `product_file.csv` and store the results, including a `predicted_category` column, in `output_file.csv`.
+
 ---
 
 ## Testing
 
-Unit tests for the classification functions are provided in `test.py`. The `unittest` framework is used for testing.
-
-### Running the Tests
-
-To run the tests, use the following command:
+Unit tests for the classification functions are available in `test.py`. The tests can be run using the `unittest` module:
 
 ```bash
 python -m unittest test.py
 ```
 
-This will test both the `classify_product` and `classify_products` functions with predefined test cases.
-
----
-
-## Logging
-
-The `classify.py` script has logging enabled to track important information during execution. The logging setup is as follows:
-
-- **Logging Level**: `INFO` (can be changed to `DEBUG` for more verbosity).
-- **Format**: The log messages include the timestamp, logger name, log level, and message.
-
-Example log entries:
-
-```
-2024-09-09 14:33:23,847 - __main__ - INFO - A smartphone with 128GB storage and 6GB RAM.
-2024-09-09 14:33:23,847 - __main__ - INFO - Electronics, Clothing, Home Appliances
-2024-09-09 14:33:23,847 - __main__ - INFO - Electronics
-```
-
-The logger will capture:
-- Product descriptions being classified.
-- Categories provided to the model.
-- The result returned by the model.
-
----
-
-## Additional Notes
-
-- The `OllamaLLM` model will be called during runtime, so ensure the model is properly configured and accessible in your environment.
-- Performance may vary based on the response time of the model and the complexity of the product descriptions.
-
----
-
-This README provides an overview of the project, including setup, usage, and testing. If you encounter any issues or need further assistance, please feel free to reach out.
+This will validate the `classify_product` and `classify_products` functions against predefined test cases.

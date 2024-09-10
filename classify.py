@@ -59,7 +59,7 @@ def classify_product(description: str, categories: List[str], model_name: str = 
 
     # Log the input description, categories, and the output response for tracking purposes
     logger.info(f"Product Description: {description}")
-    logger.info(f"Categories: {categories_str}")
+    logger.debug(f"Category: {response.strip()}")
     logger.info(f"Model Response: {response}")
 
     # Return the classified category, stripping any extra whitespace
